@@ -2,11 +2,13 @@ import React , { useState} from 'react'
 import "../../styles/adduser.css"
 import { collection, getDocs, query, where } from "firebase/firestore";
 import {db} from "../../utils/firebase";
+import useUserStore from '../../utils/userState';
 
 
 export default function AddUser() {
 
   const [user , setUser] = useState(null);
+  const {currentUser } = useUserStore();
 
 
   async function search(e)
@@ -20,7 +22,7 @@ export default function AddUser() {
       const q = query(userRef, where("username", "==", username));
       const querySnapShot= await getDocs(q);
 
-      if(!querySnapShot.empty)
+      if(!querySnapShot.empty && querySnapShot.docs[0].data().username !== currentUser.username)
       {
         setUser(querySnapShot.docs[0].data())
       }
@@ -43,7 +45,7 @@ export default function AddUser() {
    {  user &&   <div className="user">
             <div className="detail">
                 <img src={user.dp} alt="" />
-                <span>{user.username}</span>
+                <span> {user.username}</span>
             </div>
             <button>Add User</button>
         </div>}
