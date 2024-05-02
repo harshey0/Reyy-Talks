@@ -58,20 +58,39 @@
     flex-direction: column;
     gap: 20px;
 }
+.chat .center .checkImage{
+position: fixed;
+top: 0;
+bottom: 0;
+left: 0;
+right: 0;
+margin: auto;
+width: 300px;
+height: 300px;
+border-radius: 10px;
+object-fit: cover;
+}
+
+
 .chat .center .message{
     max-width: 70%;
+    margin-right: auto;
     display: flex;
     gap: 20px;
 }
-.chat .center .my {
+.chat .center .mymessage {
+
+    max-width: 70%;
     margin-left: auto;
-    
+    display: flex;
+    gap: 20px;
 }
-.chat .center .my .texts p{
+.chat .center .mymessage .texts p{
     background-color: #5183fe;
 
 }
 .chat .center img{
+    margin-top: 15px;
     height: 30px;
     width: 30px;
     border-radius: 50%;
