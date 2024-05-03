@@ -13,7 +13,7 @@ export default function ChatList() {
 
   const [chats , setChats]=useState([])
   const [addMode , setaddMode]=useState(false)
-
+  const [input , setInput]=useState("")
 const {currentUser}= useUserStore();
 const {fetchChat}= useChatStore();
 
@@ -38,6 +38,8 @@ return()=>{unsub();}
 
 },[currentUser.id])
 
+const filteredChats = chats.filter(c=> c.user.username.includes(input));
+
 async function fetch(id,user)
 {
   const userChat = chats.map((item)=>{
@@ -59,7 +61,6 @@ async function fetch(id,user)
   {
     console.log(error);
   }
-
 }
 
 
@@ -70,12 +71,12 @@ async function fetch(id,user)
       <div className="search">
         <div className="search-bar">
           <img src={search} alt="" />
-          <input type="text" placeholder='Search'/>
+          <input type="text" placeholder='Search' onChange={(e)=>{setInput(e.target.value)}}/>
         </div>
         <img src={addMode ? minus:plus} alt="" className='add' onClick={()=>setaddMode(!addMode)}/>
       </div>
      
-    { chats.map((chat)=>(
+    { filteredChats.map((chat)=>(
       <div className="item" onClick={()=>{fetch(chat.chatId,chat.user)}} style={{backgroundColor: chat?.isSeen?"transparent":"#5183fe"}}>
        <img src={chat.user.dp} alt="" />
        <div className="texts">

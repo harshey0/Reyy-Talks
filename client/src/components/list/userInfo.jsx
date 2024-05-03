@@ -1,7 +1,6 @@
 import React from 'react'
 import "../../styles/userInfo.css"
 import more from "../../assets/more.png";
-import video from "../../assets/video.png";
 import edit from "../../assets/edit.png";
 import useUserStore from '../../utils/userState';
 
@@ -16,7 +15,6 @@ export default function UserInfo() {
     </div>
         <div className="icon">
             <img src={more} alt="" />
-            <img src={video} alt="" />
             <img src={edit} alt="" />
         </div>
     </div>

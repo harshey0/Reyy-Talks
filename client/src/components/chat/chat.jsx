@@ -5,7 +5,6 @@ import {db} from "../../utils/firebase.js"
 import EmojiPicker from "emoji-picker-react"
 import phone from "../../assets/phone.png";
 import video from "../../assets/video.png";
-import info from "../../assets/info.png";
 import emoji from "../../assets/emoji.png";
 import img from "../../assets/img.png";
 import camera from "../../assets/camera.png";
@@ -22,6 +21,7 @@ export default function Chat() {
   const [emo , setEmoji] = useState(false)
   const [text , settext] = useState("")
   const [image, setimg] = useState({file:"",url:""})
+  const [status , setStatus] = useState(user.status)
   const [currentTime, setCurrentTime] = useState(new Date());
   const endRef=useRef(null)
   
@@ -40,9 +40,21 @@ export default function Chat() {
   }, [chatId]);
 
   useEffect(() => {
+      const unsubscribe = onSnapshot(doc(db, "users", user.id), (doc) => {
+        if (doc.exists()) {
+          const userData = doc.data();
+          setStatus(userData.status);
+        }
+      });
+    return () => unsubscribe();
+  }, [user]);
+
+  useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date());
+   
     }, 1000);})
+
   
     function pic(e)
     {
@@ -147,7 +159,7 @@ export default function Chat() {
 
         <span>{user.username}
           <p>
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. 
+            {status} 
           </p>
         </span>
       </div>
@@ -155,7 +167,6 @@ export default function Chat() {
     <div className="icons">
       <img src={phone} alt="" />
       <img src={video} alt="" />
-      <img src={info} alt="" />
     </div>
 
     </div>
