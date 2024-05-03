@@ -64,6 +64,8 @@ export default function Chat() {
 
   async function send()
   {
+
+    setEmoji(false);
       if(image.file)
    { try{
     const imgURL = await uploads(image.file);
@@ -147,7 +149,6 @@ export default function Chat() {
   function emoj(e)
   {
     settext(text + e.emoji )
-    setEmoji(false);
   }
 
   return (
