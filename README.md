@@ -1,4 +1,4 @@
-<h1>Harshit Sethi's Reyy Talks - Real-time Communication App</h1>
+<h1>Reyy Talks - Real-time Communication App</h1>
 
 <h2>Features of Reyy Talks:</h2>
 
