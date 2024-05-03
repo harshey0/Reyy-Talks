@@ -15,7 +15,9 @@ import uploads from '../../utils/upload';
 
 export default function Chat() {
 
-  const {chatId , user } = useChatStore();
+  const {chatId , user  } = useChatStore();
+  const [isCurrentBlocked, setc ] = useState(false);
+  const [isRecieveBlocked, setr ] = useState(false);
   const {currentUser } = useUserStore();
   const [chat , setChat] = useState()
   const [emo , setEmoji] = useState(false)
@@ -24,6 +26,27 @@ export default function Chat() {
   const [status , setStatus] = useState(user.status)
   const [currentTime, setCurrentTime] = useState(new Date());
   const endRef=useRef(null)
+
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db,"users",currentUser.id),
+    (res)=>{
+      if (res.data().blocked.includes(user.id))
+      setr(true);
+      else
+      setr(false);
+    })
+    const unSub1 = onSnapshot(doc(db,"users",user.id),
+    (res)=>{
+      if(res.data().blocked.includes(currentUser.id))
+      setc(true);
+      else
+      setc(false);
+    })
+    return()=>{
+      unSub();
+      unSub1();
+    }
+  });
   
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth'});
@@ -159,9 +182,9 @@ export default function Chat() {
       <div className="texts">
 
         <span>{user.username}
-          <p>
+          {!isCurrentBlocked && <p>
             {status} 
-          </p>
+          </p>}
         </span>
       </div>
     </div>
@@ -191,20 +214,20 @@ export default function Chat() {
           <label htmlFor='file'>
           <img src={img} alt="" />
           </label>
-          <input type="file" id='file' style={{display:"none"}} onChange={pic} />
+          <input type="file" id='file' style={{display:"none"}} onChange={pic}   disabled={isCurrentBlocked || isRecieveBlocked}/>
 
           <img src={camera} alt="" />
           <img src={mic} alt="" />
 
           </div>
-            <input type="text" value={text} placeholder='Type a message...' onChange={(e)=>settext(e.target.value)}/>
+            <input type="text" value={text} placeholder='Type a message...' onChange={(e)=>settext(e.target.value)}  disabled={isCurrentBlocked || isRecieveBlocked}/>
             <div className="emoji">
               <img src={emoji} alt="" onClick={()=>setEmoji(!emo)}/>
               <div className="picker">
-              <EmojiPicker open={emo} onEmojiClick={emoj}/>
+              <EmojiPicker open={isCurrentBlocked || isRecieveBlocked ? false : emo} onEmojiClick={emoj}/>
               </div>
             </div>
-            <button className='send' onClick={send}>
+            <button className='send' onClick={send} disabled={isCurrentBlocked || isRecieveBlocked}>
               Send
             </button>
     </div>

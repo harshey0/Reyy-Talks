@@ -147,6 +147,9 @@ object-fit: cover;
     border-radius: 10px;
     font-size: 16px;
 }
+.chat .bottom input:disabled{
+    cursor: not-allowed;
+}
 .chat .bottom .send{
     background-color: #5183fe;
     color: white;
@@ -155,6 +158,10 @@ object-fit: cover;
     border-radius: 5px;
     cursor: pointer;
 }
+.chat .bottom .send:disabled {
+    background-color: #5182fe59;
+    cursor: not-allowed;
+  }
 
 .chat .bottom .emoji{
     position: relative;

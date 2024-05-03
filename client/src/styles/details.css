@@ -35,6 +35,10 @@
     border-radius: 5px;
     cursor: pointer;
 }
+.details button:disabled:hover {
+    background-color: rgba(230, 74, 105, 0.321); 
+    cursor: not-allowed;
+}
 .details .btn{
     margin-top: 15px;
     padding: 20px 20px;
