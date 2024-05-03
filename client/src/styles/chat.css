@@ -110,7 +110,7 @@ object-fit: cover;
 }
 .chat .center .texts p{
     padding: 20px;
-    background-color: rgb(17, 25, 40, 0.3);
+    background-color: rgb(17, 25, 40);
     border-radius: 10px;
 }
 .chat .center .texts span{
