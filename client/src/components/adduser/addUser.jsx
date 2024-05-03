@@ -1,6 +1,6 @@
 import React , { useState} from 'react'
 import "../../styles/adduser.css"
-import { collection,setDoc, serverTimestamp , doc, getDocs, query, where, updateDoc, arrayUnion} from "firebase/firestore";
+import { collection,setDoc, serverTimestamp , doc, getDocs,getDoc, query, where, updateDoc, arrayUnion} from "firebase/firestore";
 import {db} from "../../utils/firebase";
 import useUserStore from '../../utils/userState';
 
@@ -51,11 +51,13 @@ export default function AddUser() {
       const q = query(userRef, where("username", "==", username));
       const querySnapShot= await getDocs(q);
 
-      const userChatRef = collection(db, "userChats");
-      const userChatsQuery = query(userChatRef, where("__name__", "==", querySnapShot?.docs[0].data().id));
-    const userChatsSnapShot = await getDocs(userChatsQuery);
+      const userChatDocRef = doc(collection(db, "userChats"), currentUser.id); 
+                const userChatDocSnapshot = await getDoc(userChatDocRef);
+              const chats = userChatDocSnapshot.data().chats || []; 
+           const hasReceiverId = chats.some(chat => chat.recieverId === querySnapShot?.docs[0]?.data()?.id);
+                         
 
-      if(!querySnapShot.empty && querySnapShot.docs[0].data().username !== currentUser.username && userChatsSnapShot.empty)
+      if(!querySnapShot.empty && (querySnapShot.docs[0].data().username !== currentUser.username) && !hasReceiverId )
       {
         setUser(querySnapShot.docs[0].data())
       }
