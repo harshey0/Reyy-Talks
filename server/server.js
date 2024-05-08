@@ -26,10 +26,20 @@ io.on('connection', (socket) => {
     });
 
     socket.on("offer",data=>{
-        io.to(data.to).emit("incomming",{from:socket.id,offer:data.offer})})
+        io.to(data.to).emit("incomming",{from:socket.id,offer:data.off})})
 
     socket.on("answer",data=>{
-        io.to(data.to).emit("answer",{from:socket.id , answer:data.answer})})
+        io.to(data.to).emit("answer",{from:socket.id , answer:data.ans})})
+
+        socket.on("peer:nego:needed", ({ to, off }) => {
+            console.log("peer:nego:needed", off);
+            io.to(to).emit("peer:nego:needed", { from: socket.id, off });
+          });
+        
+          socket.on("peer:nego:done", ({ to, ans }) => {
+            console.log("peer:nego:done", ans);
+            io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+          });
 
 });
 
