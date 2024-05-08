@@ -1,5 +1,6 @@
 import React,{useEffect} from 'react';
 import "./styles/app.css"
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import List from './components/list/list';
 import Chat from './components/chat/chat';
 import Details from './components/details/details';
@@ -11,6 +12,7 @@ import {auth , db} from "./utils/firebase.js"
 import useUserStore from './utils/userState';
 import useChatStore from './utils/chatState';
 import { doc, updateDoc} from "firebase/firestore";
+import Call from './components/call/VideoCall';
 
 function App() {
 
@@ -45,10 +47,17 @@ function App() {
   return (
     <div className='container' >
 
-
-     {currentUser?(<> <List/>
+<BrowserRouter>
+          <Routes>
+          <Route path='/' element={currentUser?(<> <List/>
       {chatId &&<><Chat/>
-      <Details/></>}</>):( <Login/>)}
+      <Details/></>}</>):( <Login/>)} />
+          <Route path='/call/:roomId' element={<Call/>} />
+         
+
+      </Routes>
+        </BrowserRouter>
+
       <ToastContainer position='bottom-right'/>
     </div>
   );

@@ -12,9 +12,11 @@ import mic from "../../assets/mic.png";
 import useChatStore from '../../utils/chatState';
 import useUserStore from '../../utils/userState';
 import uploads from '../../utils/upload';
+import { useNavigate } from 'react-router-dom';
 
 export default function Chat() {
 
+  const navigate= useNavigate();
   const {chatId , user  } = useChatStore();
   const [isCurrentBlocked, setc ] = useState(false);
   const [isRecieveBlocked, setr ] = useState(false);
@@ -84,6 +86,10 @@ export default function Chat() {
         if(e.target.files[0])
         setimg({file:e.target.files[0],url:URL.createObjectURL(e.target.files[0])})
     }
+
+    function handleVideoCallClick() {
+      navigate("/call/100")
+    };
 
   async function send()
   {
@@ -190,7 +196,7 @@ export default function Chat() {
     </div>
     <div className="icons">
       <img src={phone} alt="" />
-      <img src={video} alt="" />
+      <img src={video} alt="" onClick={handleVideoCallClick}/>
     </div>
 
     </div>
