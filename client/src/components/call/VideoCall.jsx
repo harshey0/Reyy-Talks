@@ -61,7 +61,7 @@ export default function Call() {
       }, []);
 
     useEffect(() => {
-        socket.current = io(process.env.URLS);
+        socket.current = io(process.env.REACT_APP_URLS);
         socket.current.emit('join_room', { username, roomId });
         console.log("connection")
     
