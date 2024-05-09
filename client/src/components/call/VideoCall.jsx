@@ -1,11 +1,19 @@
 import React, { useEffect, useRef, useState , useCallback} from 'react';
 import "../../styles/videocall.css"
 import io from "socket.io-client";
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useUserStore from '../../utils/userState';
+import { toast } from 'react-toastify';
+import {db} from "../../utils/firebase.js"
+import { doc, updateDoc, onSnapshot } from "firebase/firestore";
+import dialUrl from '../../assets/dialtone.mp3';
+
 
 export default function Call() {
+
+
     const { roomId } = useParams();
+    const [isRinging, setIsRinging] = useState(false);
     const { currentUser } = useUserStore();
     const [localStream, setLocalStream] = useState(null);
     const [remoteStream, setRemoteStream] = useState(null);
@@ -15,6 +23,65 @@ export default function Call() {
     const [username, setUsername] = useState(currentUser.username); 
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
+    const navigate = useNavigate();
+    const [isLocalSmall, setIsLocalSmall] = useState(false);
+
+    async function clearall()
+    {
+        const userRef = doc(db, "users", currentUser.id);
+        await updateDoc(userRef, {
+            callStatus: "",
+            status: "online",
+            callType: "",
+            caller: "",
+            room:'', }); 
+    }
+
+    function end()
+    {
+        if (localStream) {
+            localStream.getTracks().forEach(track => {
+                if (!track.ended) {
+                    track.stop(); 
+                }
+            }); 
+        }
+        
+                        pc.current.close(); 
+                        setLocalStream(null); 
+                        setRemoteStream(null); 
+                        navigate(-1);
+                        socket.current.emit("left",{to:remoteSocketId});
+    }
+
+    useEffect(() => {
+        if (currentUser) {
+            const userRef = doc(db, "users", currentUser.id);
+            const unsubscribe = onSnapshot(userRef, async(doc) => {
+                if (doc.exists()) {
+                    const userData = doc.data();
+                     if (userData.callStatus === "accepted") {
+                        toast("Call accepted");
+                        setIsRinging(false)
+                    } else if (userData.callStatus === "rejected") {
+                        toast("Call rejected");
+                        setIsRinging(false)
+                      await clearall();
+                      end();
+                    }
+                    else if (userData.callStatus === "calling")
+                    {
+                        toast("calling");
+                        setIsRinging(true)
+
+                    }
+                }
+            });
+            return () => unsubscribe();
+        }
+    }, []);
+    
+    
  
     useEffect(() => {
         const createPeerConnection = async () => {
@@ -56,9 +123,26 @@ export default function Call() {
           const remotestream = ev.streams;
           console.log("GOT TRACKS!!");
           setRemoteStream(remotestream[0]);
+        setIsLocalSmall(true);
           remoteVideoRef.current.srcObject = remotestream[0];
         });
       }, []);
+
+      useEffect(()=>{
+        let  ringtone = new Audio(dialUrl);
+           if(isRinging){
+        ringtone.loop = true;
+        ringtone.play().catch(error => {
+            console.log('Error playing ringtone:', error);
+        });;}
+
+        return () => {
+            if (ringtone) {
+                ringtone.pause();
+                ringtone.currentTime = 0; 
+            
+        };
+    };},[isRinging])
 
     useEffect(() => {
         socket.current = io(process.env.REACT_APP_URLS);
@@ -150,6 +234,14 @@ export default function Call() {
         await description(data.answer)
     },[]);
 
+    const handleUserLeft = useCallback(async() => {
+        console.log("User left the call");
+
+        await clearall();
+            end();
+            toast("Call ended")
+    }, [remoteSocketId]);
+    
 
     const handleNegoNeeded = useCallback(async () => {
         const off = await offer();
@@ -182,6 +274,7 @@ export default function Call() {
         socket.current.on("answer",handleAnswer);
         socket.current.on("peer:nego:needed", handleNegoNeedIncomming);
         socket.current.on("peer:nego:final", handleNegoNeedFinal);
+        socket.current.on("user_left", handleUserLeft);
     
         return () => {
             socket.current.off("user_joined",handleUserJoined);
@@ -189,13 +282,41 @@ export default function Call() {
             socket.current.off("answer",handleAnswer);
             socket.current.off("peer:nego:needed", handleNegoNeedIncomming);
             socket.current.off("peer:nego:final", handleNegoNeedFinal);
+            socket.current.off("user_left", handleUserLeft);
         };
-    }, [socket , handleUserJoined , handleIncomming , handleAnswer]);
+    }, [socket , handleUserJoined , handleIncomming , handleAnswer , handleNegoNeedIncomming , handleNegoNeedIncomming , handleUserLeft]);
 
     return (
         <div className='videos'>
-        <video ref={localVideoRef} className='video-player' autoPlay playsInline muted />
-        <video ref={remoteVideoRef} className='video-player' autoPlay playsInline />
+
+{remoteStream&&<video ref={remoteVideoRef} className='video-player ' autoPlay playsInline />}
+   { localStream &&    <video ref={localVideoRef} className={`video-player ${isLocalSmall ? 'small' : ''}`} id='local' autoPlay playsInline muted style={{ backgroundImage: currentUser.dp }}/>}
+        <div className="controls">
+        <button onClick={() => {
+            
+    const audioTracks = localStream.getAudioTracks();
+    audioTracks.forEach(track => {
+        track.enabled = !track.enabled;
+    });
+}}>
+    Mic
+</button>
+           <button onClick={() => {
+    const videoTracks = localStream.getVideoTracks();
+    videoTracks.forEach(track => {
+        track.enabled = !track.enabled;
+    });
+}}>
+    Video
+</button>
+            <button onClick={async() => {
+             await clearall();
+             end();
+             toast("Call ended")
+                }}>
+                End Call
+            </button>
+        </div>
     </div>
     );
     

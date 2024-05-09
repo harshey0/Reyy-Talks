@@ -77,6 +77,10 @@ export default function Chat() {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date());
+
+      return () => {
+        clearInterval(intervalId);
+      };
    
     }, 1000);})
 
@@ -88,7 +92,29 @@ export default function Chat() {
     }
 
     function handleVideoCallClick() {
-      navigate("/call/100")
+
+      updateDoc(doc(db, "users", user.id), {
+        callStatus: "ringing",
+        callType: "Video Call",
+        caller: currentUser.username,
+        room:currentUser.id,
+        callerid:currentUser.id
+      });
+
+      navigate(`/call/${currentUser.id}`) 
+    };
+
+    function handleAudioCallClick() { 
+
+      updateDoc(doc(db, "users", user.id), {
+        callStatus: "ringing",
+        callType: "Audio Call",
+        caller: currentUser.username,
+        room:currentUser.id,
+        callerid:currentUser.id
+      });
+
+      navigate(`/call/${currentUser.id}`) 
     };
 
   async function send()
@@ -195,7 +221,7 @@ export default function Chat() {
       </div>
     </div>
     <div className="icons">
-      <img src={phone} alt="" />
+      <img src={phone} alt=""  onClick={handleAudioCallClick}/>
       <img src={video} alt="" onClick={handleVideoCallClick}/>
     </div>
 

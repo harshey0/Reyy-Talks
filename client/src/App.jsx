@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react';
+import React,{useEffect , useState} from 'react';
 import "./styles/app.css"
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import List from './components/list/list';
@@ -11,13 +11,15 @@ import {onAuthStateChanged} from "firebase/auth";
 import {auth , db} from "./utils/firebase.js"
 import useUserStore from './utils/userState';
 import useChatStore from './utils/chatState';
-import { doc, updateDoc} from "firebase/firestore";
+import { doc, updateDoc , onSnapshot} from "firebase/firestore";
 import Call from './components/call/VideoCall';
+import Ringing from "./components/call/call.jsx"
 
 function App() {
 
   const{currentUser, isLoading, fetchUser}=useUserStore();
   const {chatId} = useChatStore();
+  const [userData, setUserData] = useState(null);
 
   useEffect(()=>{
     const unSub= onAuthStateChanged(auth,(user)=>{
@@ -27,6 +29,26 @@ function App() {
     return ()=>{unSub();
     }
   },[fetchUser] )
+
+  useEffect(() => {
+    async function fetchUserData() {
+      if (currentUser) {
+        try {
+          const userRef = doc(db, "users", currentUser.id);
+          const unsubscribe = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+              const userData = doc.data();
+              setUserData(userData);
+            }
+          });
+          return unsubscribe;
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    }
+    fetchUserData();
+  }, [currentUser]);
 
   useEffect(()=>{
     async function status()
@@ -46,15 +68,27 @@ function App() {
     return(<div className='container' > <div className='loading'>Loading...</div>  </div>)
   return (
     <div className='container' >
-
 <BrowserRouter>
-          <Routes>
-          <Route path='/' element={currentUser?(<> <List/>
-      {chatId &&<><Chat/>
-      <Details/></>}</>):( <Login/>)} />
-          <Route path='/call/:roomId' element={<Call/>} />
-         
 
+          <Routes>
+
+          <Route path='/' element={currentUser ? (
+            <>
+              {userData?.callStatus && userData.callStatus === "ringing" ? (
+                <Ringing data={userData} />
+              ) : (
+                <></>
+              )}
+              <List />
+              {chatId && (
+                <>
+                  <Chat />
+                  <Details />
+                </>
+              )}
+            </>
+          ) : ( <Login/>)} />
+          <Route path='/call/:roomId' element={<><Call/></>} />
       </Routes>
         </BrowserRouter>
 
