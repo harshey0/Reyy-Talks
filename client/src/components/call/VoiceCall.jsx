@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState , useCallback} from 'react';
-import "../../styles/videocall.css"
+import "../../styles/voicecall.css"
 import io from "socket.io-client";
 import { useNavigate, useParams } from 'react-router-dom';
 import useUserStore from '../../utils/userState';
@@ -9,7 +9,7 @@ import { doc, updateDoc, onSnapshot } from "firebase/firestore";
 import dialUrl from '../../assets/dialtone.mp3';
 import useChatStore from '../../utils/chatState';
 
-export default function Call() {
+export default function Vcall() {
 
 
 
@@ -17,16 +17,14 @@ export default function Call() {
     const { roomId } = useParams();
     const [isRinging, setIsRinging] = useState(false);
     const { currentUser } = useUserStore();
-    const [localStream, setLocalStream] = useState(null);
-    const [remoteStream, setRemoteStream] = useState(null);
     const [remoteSocketId, setRemoteSocketId] = useState(null);
     const pc = useRef(null);
     const socket = useRef();
-    const [username, setUsername] = useState(currentUser.username); 
-    const localVideoRef = useRef(null);
-    const remoteVideoRef = useRef(null);
     const navigate = useNavigate();
-    const [isLocalSmall, setIsLocalSmall] = useState(false);
+    const remoteAudioRef = useRef(null);
+    const [dp , setdp] = useState();
+    const [localStream , setLocalStream] = useState();
+    const [remoteStream , setRemoteStream] = useState();
 
     async function clearall()
     {
@@ -36,23 +34,13 @@ export default function Call() {
             status: "online",
             callType: "",
             caller: "",
-            callerid:"",
             room:'', }); 
     }
 
     function end()
     {
-        if (localStream) {
-            localStream.getTracks().forEach(track => {
-                if (!track.ended) {
-                    track.stop(); 
-                }
-            }); 
-        }
         
                         pc.current.close(); 
-                        setLocalStream(null); 
-                        setRemoteStream(null); 
                         navigate(-1);
                         socket.current.emit("left",{to:remoteSocketId});
     }
@@ -113,21 +101,14 @@ export default function Call() {
         };
     }, []);
 
-    const sendStreams = useCallback(() => {
-        if(localStream)
-        for (const track of localStream.getTracks()) {
-          pc.current.addTrack(track, localStream);
-        }
-      }, [localStream]);
 
       useEffect(() => {
 
         pc.current.addEventListener("track", async (ev) => {
           const remotestream = ev.streams;
           console.log("GOT TRACKS!!");
-          setRemoteStream(remotestream[0]);
-        setIsLocalSmall(true);
-          remoteVideoRef.current.srcObject = remotestream[0];
+          setRemoteStream(remotestream[0])
+          remoteAudioRef.current.srcObject = remotestream[0];
         });
       }, []);
 
@@ -149,13 +130,13 @@ export default function Call() {
 
     useEffect(() => {
         socket.current = io(process.env.REACT_APP_URLS);
-        socket.current.emit('join_room', { username, roomId });
+        socket.current.emit('join_room', { roomId });
         console.log("connection")
     
         return () => {
             socket.current.disconnect();
         };
-    }, [roomId, username]);
+    }, [roomId]);
 
     useEffect(() => {
         socket.current.on("join_room", async() => {
@@ -169,15 +150,22 @@ export default function Call() {
 
     const handleCallUser = useCallback(async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({audio: true });
             console.log("local stream")
             setLocalStream(stream);
-            localVideoRef.current.srcObject = stream;
             stream.getTracks().forEach(track => pc.current.addTrack(track, stream));
         } catch (error) {
             console.error('Error accessing media devices:', error);
         }
-    }, [setLocalStream]);
+    }, []);
+
+    const sendStreams = useCallback(() => {
+        if(localStream)
+        for (const track of localStream.getTracks()) {
+          pc.current.addTrack(track, localStream);
+        }
+      }, [localStream]);
+
 
         async function offer()
         {
@@ -211,7 +199,7 @@ export default function Call() {
             try {
                 await pc.current.setRemoteDescription(new RTCSessionDescription(answer));
                 console.log("description");
-                   sendStreams();
+                sendStreams();
             } catch (error) {
                 console.error('Error setting remote description:', error);
             }
@@ -223,18 +211,20 @@ export default function Call() {
         setRemoteSocketId(data.id);
         const off = await offer();
         console.log("offer")
-        socket.current.emit('offer', { off, to:data.id });
+        socket.current.emit('offer', { off, to:data.id , photo:currentUser.dp});
     }, []);
 
     const handleIncomming = useCallback(async(data) => {
 
         setRemoteSocketId(data.from);
         const ans = await answer(data.offer);
-        socket.current.emit('answer', { ans, to:data.from });
+        setdp(data.photo)
+        socket.current.emit('answer', { ans, to:data.from , photo:currentUser.dp });
     },[]);
 
     const handleAnswer = useCallback(async(data) => {
         await description(data.answer)
+        setdp(data.photo)
     },[]);
 
     const handleUserLeft = useCallback(async() => {
@@ -290,10 +280,15 @@ export default function Call() {
     }, [socket , handleUserJoined , handleIncomming , handleAnswer , handleNegoNeedIncomming , handleNegoNeedIncomming , handleUserLeft]);
 
     return (
-        <div className='videos'>
-
-{remoteStream&&<video ref={remoteVideoRef} className='video-player ' autoPlay playsInline />}
-   { localStream &&    <video ref={localVideoRef} className={`video-player ${isLocalSmall ? 'small' : ''}`} id='local' autoPlay playsInline muted style={{ backgroundImage: currentUser.dp }}/>}
+        <div className='audio'>
+          <img className='imgcall' src={currentUser.dp}></img>
+          <img className='imgcall' src={dp||user?.dp||currentUser.dp}></img>
+          {remoteStream && (
+    <audio autoPlay controls ref={remoteAudioRef}> 
+        <source type="audio/ogg" />
+        Your browser does not support the audio element.
+    </audio>
+)}
         <div className="controls">
         <button onClick={() => {
             
@@ -304,17 +299,9 @@ export default function Call() {
 }}>
     Mic
 </button>
-           <button onClick={() => {
-    const videoTracks = localStream.getVideoTracks();
-    videoTracks.forEach(track => {
-        track.enabled = !track.enabled;
-    });
-}}>
-    Video
-</button>
             <button onClick={async() => {
              await clearall();
-       await updateDoc(doc(db, "users", user?.id), {
+             await updateDoc(doc(db, "users", user?.id), {
         callStatus: "",
         callType: "",
         caller: "",

@@ -13,6 +13,7 @@ import useUserStore from './utils/userState';
 import useChatStore from './utils/chatState';
 import { doc, updateDoc , onSnapshot} from "firebase/firestore";
 import Call from './components/call/VideoCall';
+import Vcall from './components/call/VoiceCall';
 import Ringing from "./components/call/call.jsx"
 
 function App() {
@@ -88,7 +89,8 @@ function App() {
               )}
             </>
           ) : ( <Login/>)} />
-          <Route path='/call/:roomId' element={<><Call/></>} />
+          <Route path='/videocall/:roomId' element={<><Call/></>} />
+          <Route path='/voicecall/:roomId' element={<><Vcall/></>} />
       </Routes>
         </BrowserRouter>
 

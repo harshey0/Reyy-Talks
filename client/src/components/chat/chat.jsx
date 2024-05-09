@@ -100,8 +100,7 @@ export default function Chat() {
         room:currentUser.id,
         callerid:currentUser.id
       });
-
-      navigate(`/call/${currentUser.id}`) 
+      navigate(`/videocall/${currentUser.id}`) 
     };
 
     function handleAudioCallClick() { 
@@ -114,7 +113,7 @@ export default function Chat() {
         callerid:currentUser.id
       });
 
-      navigate(`/call/${currentUser.id}`) 
+      navigate(`/voicecall/${currentUser.id}`) 
     };
 
   async function send()

@@ -19,16 +19,16 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     socket.on('join_room', (data) => {
-        io.to(data.roomId).emit("user_joined",{username:data.username , id:socket.id})
+        io.to(data.roomId).emit("user_joined",{ id:socket.id})
         socket.join(data.roomId)
         io.to(socket.id).emit("join_room", data)
     });
 
     socket.on("offer",data=>{
-        io.to(data.to).emit("incomming",{from:socket.id,offer:data.off})})
+        io.to(data.to).emit("incomming",{from:socket.id,offer:data.off , photo:data.photo})})
 
     socket.on("answer",data=>{
-        io.to(data.to).emit("answer",{from:socket.id , answer:data.ans})})
+        io.to(data.to).emit("answer",{from:socket.id , answer:data.ans , photo:data.photo})})
 
         socket.on("peer:nego:needed", ({ to, off }) => {
             console.log("peer:nego:needed", off);

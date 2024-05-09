@@ -51,7 +51,10 @@ async function status()
         const userRef = doc(db, "users", currentUser.id);
         await updateDoc(userRef, { status: "In a call"});
         setIsRinging(false);
-        navigate(`/call/${props.data.room}`)
+        if(props.data.callType === "Video Call")
+        navigate(`/videocall/${props.data.room}`)
+        else if (props.data.callType === "Audio Call")
+        navigate(`/voicecall/${props.data.room}`)
     };
 
     const rejectCall = async() => {
