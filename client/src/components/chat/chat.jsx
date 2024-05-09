@@ -63,19 +63,10 @@ export default function Chat() {
       else
       setc(false);
     })
-    const unSub2 = onSnapshot(doc(db,"userChats",user.id),
-    (res)=>{
-      const userChatData = res.data();
-      if (userChatData) {
-        const index = userChatData.chats.findIndex((c) => c.chatId === chatId);
-          setSeen(userChatData.chats[index].isSeen)
-      }
-    })
 
     return()=>{
       unSub();
       unSub1();
-      unSub2();
     }
   });
   
@@ -88,8 +79,18 @@ export default function Chat() {
           setChat(snapshot.data());
         });
 
+    const unSub2 = onSnapshot(doc(db,"userChats",user.id),
+    (res)=>{
+      const userChatData = res.data();
+      if (userChatData) {
+        const index = userChatData.chats.findIndex((c) => c.chatId === chatId);
+          setSeen(userChatData.chats[index].isSeen)
+      }
+    })
+
         return () => {
           unSub();
+      unSub2();
         };},
       
  [chatId]);
