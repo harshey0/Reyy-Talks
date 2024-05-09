@@ -7,12 +7,12 @@ import {getStorage} from "firebase/storage"
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: "reyy-s-room.firebaseapp.com",
-  projectId: "reyy-s-room",
-  storageBucket: "reyy-s-room.appspot.com",
-  messagingSenderId: "430647701381",
-  appId: "1:430647701381:web:a6f783a15ef274e7f8deec",
-  measurementId: "G-FXTN5PRDT0"
+  authDomain: "reyy-talks.firebaseapp.com",
+  projectId: "reyy-talks",
+  storageBucket: "reyy-talks.appspot.com",
+  messagingSenderId: "266441216250",
+  appId: "1:266441216250:web:402eecd5d91059acecf943",
+  measurementId: "G-W95DYGJWN8"
 };
 
 const app = initializeApp(firebaseConfig);

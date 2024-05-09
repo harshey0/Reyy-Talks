@@ -11,7 +11,7 @@ import {onAuthStateChanged} from "firebase/auth";
 import {auth , db} from "./utils/firebase.js"
 import useUserStore from './utils/userState';
 import useChatStore from './utils/chatState';
-import { doc, updateDoc , onSnapshot} from "firebase/firestore";
+import { doc, updateDoc ,getDoc , onSnapshot} from "firebase/firestore";
 import Call from './components/call/VideoCall';
 import Vcall from './components/call/VoiceCall';
 import Ringing from "./components/call/call.jsx"
@@ -56,6 +56,9 @@ function App() {
     {if (currentUser) {
     try {
       const userRef = doc(db,"users",currentUser.id);
+      const userDoc = await getDoc(userRef);
+      const userData = userDoc.data();
+      if (userData.status !== "online")
       await updateDoc(userRef, { status: "online" });
     } catch (error) {
       console.error("Error updating user status:", error);

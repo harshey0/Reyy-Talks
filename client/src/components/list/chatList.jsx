@@ -42,26 +42,28 @@ const filteredChats = chats.filter(c=> c.user.username.includes(input));
 
 async function fetch(id,user)
 {
-  const userChat = chats.map((item)=>{
+  // const userChat = 
+  chats.map((item)=>{
     const { user , ...rest }=item;
-    return rest;
+    // return rest;
   })
 
-  const index = userChat.findIndex(item=>item.chatId===id)
-  userChat[index].isSeen=true;
+  // const index = userChat.findIndex(item=>item.chatId===id)
+  // userChat[index].isSeen=true;
   
-  try
-  {await updateDoc(doc(db, "userChats", currentUser.id) , {
-    chats: userChat,
-  })
+  // try
+  // {
+  //   await updateDoc(doc(db, "userChats", currentUser.id) , {
+  //   chats: userChat,
+  // })
 
   fetchChat(id,user);
 }
-  catch(error)
-  {
-    console.log(error);
-  }
-}
+  // catch(error)
+  // {
+  //   console.log(error);
+  // }
+// }
 
 
 
