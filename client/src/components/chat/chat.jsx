@@ -46,7 +46,7 @@ export default function Chat() {
           
         }}
         update();
-  },[chat])
+  },[chat, chatId, user])
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db,"users",currentUser.id),
@@ -68,7 +68,7 @@ export default function Chat() {
       unSub();
       unSub1();
     }
-  });
+  },[]);
   
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth'});
@@ -86,7 +86,7 @@ export default function Chat() {
         const index = userChatData.chats.findIndex((c) => c.chatId === chatId);
           setSeen(userChatData.chats[index].isSeen)
       }
-    })
+    },[chat, chatId, user])
 
         return () => {
           unSub();
@@ -290,7 +290,7 @@ export default function Chat() {
               <EmojiPicker open={isCurrentBlocked || isRecieveBlocked ? false : emo} onEmojiClick={emoj}/>
               </div>
             </div>
-            <button className='send' onClick={send} disabled={isCurrentBlocked || isRecieveBlocked}>
+            <button className='send' onClick={async()=>await send()} disabled={isCurrentBlocked || isRecieveBlocked}>
               Send
             </button>
     </div>
