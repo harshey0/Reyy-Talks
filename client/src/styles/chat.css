@@ -60,6 +60,11 @@
     flex-direction: column;
     gap: 20px;
 }
+
+.chat .seen{
+    font-weight: bold;
+    margin-left: 50px;
+}
 .chat .center .checkImage{
 position: fixed;
 top: 0;

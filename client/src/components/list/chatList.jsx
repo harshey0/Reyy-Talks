@@ -89,7 +89,7 @@ async function fetch(id,user)
       </div>))}
 
 
-    {addMode && <AddUser/>}
+    {addMode && <AddUser set={()=>setaddMode(!addMode)}/>}
     </div>
   )
 }

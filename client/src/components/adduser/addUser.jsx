@@ -4,7 +4,7 @@ import { collection,setDoc, serverTimestamp , doc, getDocs,getDoc, query, where,
 import {db} from "../../utils/firebase";
 import useUserStore from '../../utils/userState';
 
-export default function AddUser() {
+export default function AddUser(props) {
   const [user , setUser] = useState(null);
   const {currentUser } = useUserStore();
 
@@ -35,6 +35,7 @@ export default function AddUser() {
 
         })
       })
+      props.set();
     }
     catch(error){
         console.log(error);

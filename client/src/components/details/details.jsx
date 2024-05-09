@@ -1,7 +1,7 @@
 import React , {useState, useEffect} from 'react'
 import "../../styles/details.css"
 import arrowd from "../../assets/arrowDown.png";
-import download from "../../assets/download.png";
+// import download from "../../assets/download.png";
 import { auth,db } from '../../utils/firebase';
 import { toast } from 'react-toastify';
 import useChatStore from '../../utils/chatState';

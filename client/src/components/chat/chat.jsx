@@ -26,8 +26,27 @@ export default function Chat() {
   const [text , settext] = useState("")
   const [image, setimg] = useState({file:"",url:""})
   const [status , setStatus] = useState(user.status)
+  const [seen , setSeen] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date());
   const endRef=useRef(null)
+
+
+  useEffect(()=>{
+    async function update(){
+        const userChatRef = doc(db, "userChats", currentUser.id);
+        const userChatSnapshot = await getDoc(userChatRef);
+        const userChatData = userChatSnapshot.data();
+  
+        if (userChatData) {
+          const index = userChatData.chats.findIndex((c) => c.chatId === chatId);
+            userChatData.chats[index].isSeen = true;
+            await updateDoc(userChatRef, {
+              chats: userChatData.chats,
+            });
+          
+        }}
+        update();
+  },[chat])
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db,"users",currentUser.id),
@@ -44,9 +63,19 @@ export default function Chat() {
       else
       setc(false);
     })
+    const unSub2 = onSnapshot(doc(db,"userChats",user.id),
+    (res)=>{
+      const userChatData = res.data();
+      if (userChatData) {
+        const index = userChatData.chats.findIndex((c) => c.chatId === chatId);
+          setSeen(userChatData.chats[index].isSeen)
+      }
+    })
+
     return()=>{
       unSub();
       unSub1();
+      unSub2();
     }
   });
   
@@ -55,14 +84,15 @@ export default function Chat() {
   }, [chat]);
 
   useEffect(() => {
-    const unSub = onSnapshot(doc(db,"chats",chatId),
-    (res)=>{
-      setChat(res.data())
-    })
-    return()=>{
-      unSub();
-    }
-  }, [chatId]);
+        const unSub = onSnapshot(doc(db, "chats", chatId), (snapshot) => {
+          setChat(snapshot.data());
+        });
+
+        return () => {
+          unSub();
+        };},
+      
+ [chatId]);
 
   useEffect(() => {
       const unsubscribe = onSnapshot(doc(db, "users", user.id), (doc) => {
@@ -213,7 +243,7 @@ export default function Chat() {
       <div className="texts">
 
         <span>{user.username}
-          {!isCurrentBlocked && <p>
+          {!isCurrentBlocked && !isRecieveBlocked && <p>
             {status} 
           </p>}
         </span>
@@ -238,6 +268,7 @@ export default function Chat() {
         <span>{formatTimeDifference(message.createdAt)}</span>
         </div>
       </div>)))}
+      {seen && <div className='seen'>Seen</div>}
       <div ref={endRef}></div>
       </div>
         <div className="bottom">
