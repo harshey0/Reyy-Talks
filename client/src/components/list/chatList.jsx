@@ -15,8 +15,26 @@ export default function ChatList() {
   const [addMode , setaddMode]=useState(false)
   const [input , setInput]=useState("")
 const {currentUser}= useUserStore();
-const {fetchChat}= useChatStore();
+const {fetchChat , chatId}= useChatStore();
 
+useEffect(()=>{
+  async function update(){
+      const userChatRef = doc(db, "userChats", currentUser.id);
+      const userChatSnapshot = await getDoc(userChatRef);
+      const userChatData = userChatSnapshot.data();
+
+      if (userChatData) {
+        const index = userChatData.chats.findIndex((c) => c.chatId === chatId);
+        if (!userChatData.chats[index].isSeen) {
+          userChatData.chats[index].isSeen = true;
+          await updateDoc(userChatRef, {
+            chats: userChatData.chats,
+          });}
+        
+      }}
+      if(chatId)
+     update();
+},[chats , chatId])
 
 useEffect(()=>{
 
@@ -42,28 +60,11 @@ const filteredChats = chats.filter(c=> c.user.username.includes(input));
 
 async function fetch(id,user)
 {
-  // const userChat = 
   chats.map((item)=>{
     const { user , ...rest }=item;
-    // return rest;
   })
-
-  // const index = userChat.findIndex(item=>item.chatId===id)
-  // userChat[index].isSeen=true;
-  
-  // try
-  // {
-  //   await updateDoc(doc(db, "userChats", currentUser.id) , {
-  //   chats: userChat,
-  // })
-
   fetchChat(id,user);
 }
-  // catch(error)
-  // {
-  //   console.log(error);
-  // }
-// }
 
 
 
@@ -79,7 +80,7 @@ async function fetch(id,user)
       </div>
      
     { filteredChats.map((chat)=>(
-      <div className="item" onClick={()=>{fetch(chat.chatId,chat.user)}} style={{backgroundColor: chat?.isSeen?"transparent":"#5183fe"}}>
+      <div className="item" onClick={()=>{fetch(chat.chatId,chat.user)}} style={{backgroundColor: chat.chatId===chatId?"transparent":chat?.isSeen?"transparent":"#5183fe"}}>
        <img src={chat.user.dp} alt="" />
        <div className="texts">
         <span> {chat.user.username}

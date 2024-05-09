@@ -31,23 +31,6 @@ export default function Chat() {
   const endRef=useRef(null)
 
 
-  useEffect(()=>{
-    async function update(){
-        const userChatRef = doc(db, "userChats", currentUser.id);
-        const userChatSnapshot = await getDoc(userChatRef);
-        const userChatData = userChatSnapshot.data();
-  
-        if (userChatData) {
-          const index = userChatData.chats.findIndex((c) => c.chatId === chatId);
-          if (!userChatData.chats[index].isSeen) {
-            userChatData.chats[index].isSeen = true;
-            await updateDoc(userChatRef, {
-              chats: userChatData.chats,
-            });}
-          
-        }}
-       update();
-  },[chat])
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db,"users",currentUser.id),
@@ -158,6 +141,7 @@ export default function Chat() {
 
   async function send()
   {
+    setSeen(false)
     setEmoji(false);
       if(image.file)
    { try{
