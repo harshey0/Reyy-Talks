@@ -45,8 +45,8 @@ export default function Chat() {
             });
           
         }}
-        update();
-  },[chat, chatId, user])
+       update();
+  },[chat, chatId, user , currentUser , send])
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db,"users",currentUser.id),
@@ -77,7 +77,7 @@ export default function Chat() {
   useEffect(() => {
         const unSub = onSnapshot(doc(db, "chats", chatId), (snapshot) => {
           setChat(snapshot.data());
-        });
+        },[send,chat,chatId]);
 
     const unSub2 = onSnapshot(doc(db,"userChats",user.id),
     (res)=>{
@@ -149,7 +149,6 @@ export default function Chat() {
 
   async function send()
   {
-
     setEmoji(false);
       if(image.file)
    { try{
@@ -290,7 +289,7 @@ export default function Chat() {
               <EmojiPicker open={isCurrentBlocked || isRecieveBlocked ? false : emo} onEmojiClick={emoj}/>
               </div>
             </div>
-            <button className='send' onClick={async()=>await send()} disabled={isCurrentBlocked || isRecieveBlocked}>
+            <button className='send' onClick={()=>send()} disabled={isCurrentBlocked || isRecieveBlocked}>
               Send
             </button>
     </div>
