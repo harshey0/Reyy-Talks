@@ -1,7 +1,7 @@
 import React from 'react'
 import "../../styles/userInfo.css"
 import more from "../../assets/more.png";
-import edit from "../../assets/edit.png";
+// import edit from "../../assets/edit.png";
 import useUserStore from '../../utils/userState';
 
 export default function UserInfo() {
@@ -15,7 +15,7 @@ export default function UserInfo() {
     </div>
         <div className="icon">
             <img src={more} alt="" />
-            <img src={edit} alt="" />
+            {/* <img src={edit} alt="" /> */}
         </div>
     </div>
   )
