@@ -27,6 +27,7 @@ export default function Login() {
         try{
              await signInWithEmailAndPassword(auth,email,password)
               toast.success("Successfully logged in")
+              window.location.reload();
         }
         catch(error)
         {
