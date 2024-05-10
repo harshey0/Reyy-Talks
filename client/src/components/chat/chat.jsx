@@ -7,7 +7,7 @@ import phone from "../../assets/phone.png";
 import video from "../../assets/video.png";
 import emoji from "../../assets/emoji.png";
 import img from "../../assets/img.png";
-import camera from "../../assets/camera.png";
+// import camera from "../../assets/camera.png";
 import mic from "../../assets/mic.png";
 import useChatStore from '../../utils/chatState';
 import useUserStore from '../../utils/userState';
@@ -29,8 +29,13 @@ export default function Chat() {
   const [seen , setSeen] = useState(false)
   const [currentTime, setCurrentTime] = useState(new Date());
   const endRef=useRef(null)
+  const [loading,setLoading]= useState(false)
 
-
+  useEffect(() => {
+    if (image.url === "") {
+      endRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [image]);
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db,"users",currentUser.id),
@@ -139,8 +144,14 @@ export default function Chat() {
       navigate(`/voicecall/${currentUser.id}`) 
     };
 
+    function cancel()
+    {
+      setimg({file:"", url:""});
+    }
+
   async function send()
   {
+    setLoading(true)
     setSeen(false)
     setEmoji(false);
       if(image.file)
@@ -172,7 +183,9 @@ export default function Chat() {
     catch(error)
     {
       console.log(error)
-    }}
+    }  finally{
+      setLoading(false)
+     }}
      else if(text==="")
      return;
      else
@@ -202,6 +215,9 @@ export default function Chat() {
      catch(error)
      {
       console.log(error);
+     }
+     finally{
+      setLoading(false)
      }}
   }
 
@@ -249,7 +265,13 @@ export default function Chat() {
 
     </div>
       <div className="center">
-   { image.url?( <img src={image.url} className="checkImage"/>) : (chat?.messages.map((message)=>
+   { image.url?( <><img src={image.url} className="checkImage"/> 
+   <button className='cancelimg' onClick={()=>cancel()} disabled={loading}>
+              {loading?"loading":"Cancel"}
+            </button>
+   <button className='sendimg' onClick={()=>send()} disabled={loading}>
+              {loading?"loading":"Send"}
+            </button></>) : (chat?.messages.map((message)=>
       (
 
       <div className={message.senderId===currentUser.id?"mymessage":"message"} key={message?.createdAt}>
@@ -261,7 +283,7 @@ export default function Chat() {
         <span>{formatTimeDifference(message.createdAt)}</span>
         </div>
       </div>)))}
-      {seen && <div className='seen'>Seen</div>}
+      {seen && !image.url&&<div className='seen'>Seen</div>}
       <div ref={endRef}></div>
       </div>
         <div className="bottom">
@@ -269,20 +291,20 @@ export default function Chat() {
           <label htmlFor='file'>
           <img src={img} alt="" />
           </label>
-          <input type="file" id='file' style={{display:"none"}} onChange={pic}   disabled={isCurrentBlocked || isRecieveBlocked}/>
+          <input type="file" id='file' style={{display:"none"}} onChange={pic}   disabled={loading || isCurrentBlocked || isRecieveBlocked}/>
 
-          <img src={camera} alt="" />
+          {/* <img src={camera} alt="" /> */}
           <img src={mic} alt="" />
 
           </div>
-            <input type="text" value={text} placeholder='Type a message...' onChange={(e)=>settext(e.target.value)}  disabled={isCurrentBlocked || isRecieveBlocked}/>
+            <input type="text" value={text} placeholder='Type a message...' onChange={(e)=>settext(e.target.value)}  disabled={loading || isCurrentBlocked || isRecieveBlocked}/>
             <div className="emoji">
               <img src={emoji} alt="" onClick={()=>setEmoji(!emo)}/>
               <div className="picker">
               <EmojiPicker open={isCurrentBlocked || isRecieveBlocked ? false : emo} onEmojiClick={emoj}/>
               </div>
             </div>
-            <button className='send' onClick={()=>send()} disabled={isCurrentBlocked || isRecieveBlocked}>
+            <button className='send' onClick={()=>send()} disabled={loading || isCurrentBlocked || isRecieveBlocked}>
               Send
             </button>
     </div>
