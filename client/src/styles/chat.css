@@ -170,8 +170,8 @@ object-fit: cover;
 }
 .chat .sendimg{
     position: fixed;
-    top: 30rem;
-    right: 30rem;
+bottom: 25%;
+right: 42%;
     background-color: #5183fe;
     color: white;
     padding: 20px 40px;
@@ -184,8 +184,8 @@ object-fit: cover;
 }
 .chat .cancelimg{
     position: fixed;
-    top: 25rem;
-    right: 30rem;
+bottom: 25%;
+left: 42%;
     background-color: rgb(191, 27, 27);
     color: white;
     padding: 20px 35px;
