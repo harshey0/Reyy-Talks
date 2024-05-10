@@ -27,6 +27,8 @@ export default function Call() {
     const remoteVideoRef = useRef(null);
     const navigate = useNavigate();
     const [isLocalSmall, setIsLocalSmall] = useState(false);
+    const [isMicMuted, setIsMicMuted] = useState(false);
+    const [isVideoOff, setIsVideoOff] = useState(false);
 
     async function clearall()
     {
@@ -40,21 +42,25 @@ export default function Call() {
             room:'', }); 
     }
 
-    function end()
+    async function end()
     {
         if (localStream) {
-            localStream.getTracks().forEach(track => {
+            localStream.getTracks().forEach(async(track) => {
                 if (!track.ended) {
-                    track.stop(); 
+                    await track.stop(); 
                 }
             }); 
         }
-        
-                        pc.current.close(); 
+                       await pc.current.close(); 
                         setLocalStream(null); 
                         setRemoteStream(null); 
                         navigate(-1);
+                        
                         socket.current.emit("left",{to:remoteSocketId});
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000); 
+
     }
 
     useEffect(() => {
@@ -67,10 +73,10 @@ export default function Call() {
                         toast("Call accepted");
                         setIsRinging(false)
                     } else if (userData.callStatus === "rejected") {
-                        toast("Call rejected");
                         setIsRinging(false)
                       await clearall();
-                      end();
+                      await end();
+                      toast("Call rejected");
                     }
                     else if (userData.callStatus === "calling")
                     {
@@ -239,9 +245,8 @@ export default function Call() {
 
     const handleUserLeft = useCallback(async() => {
         console.log("User left the call");
-
         await clearall();
-            end();
+           await end();
             toast("Call ended")
     }, [remoteSocketId]);
     
@@ -297,32 +302,27 @@ export default function Call() {
         <div className="controls">
         <button onClick={() => {
             
+            setIsMicMuted(!isMicMuted);
     const audioTracks = localStream.getAudioTracks();
     audioTracks.forEach(track => {
         track.enabled = !track.enabled;
     });
-}}>
-    Mic
+}} 
+            style={{ backgroundColor: isMicMuted ? 'red' : 'blue' }}>
+   {isMicMuted?"Unmute":"Mute"}
 </button>
            <button onClick={() => {
+            setIsVideoOff(!isVideoOff);
     const videoTracks = localStream.getVideoTracks();
     videoTracks.forEach(track => {
         track.enabled = !track.enabled;
     });
-}}>
-    Video
+}}  style={{ backgroundColor: isVideoOff ? 'red' : 'blue' }}>
+   {isVideoOff ? 'Turn Video on' : 'Turn Video off'}
 </button>
             <button onClick={async() => {
              await clearall();
-       await updateDoc(doc(db, "users", user?.id), {
-        callStatus: "",
-        callType: "",
-        caller: "",
-        room:"",
-        callerid:"",
-        status:"online"
-      });
-             end();
+             await end();
              toast("Call ended")
                 }}>
                 End Call

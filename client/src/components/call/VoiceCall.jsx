@@ -25,6 +25,7 @@ export default function Vcall() {
     const [dp , setdp] = useState();
     const [localStream , setLocalStream] = useState();
     const [remoteStream , setRemoteStream] = useState();
+    const [isMicMuted, setIsMicMuted] = useState(false);
 
     async function clearall()
     {
@@ -37,12 +38,22 @@ export default function Vcall() {
             room:'', }); 
     }
 
-    function end()
+    async function end()
     {
-        
-                        pc.current.close(); 
+        if (localStream) {
+            localStream.getTracks().forEach(async(track) => {
+                if (!track.ended) {
+                    await track.stop(); 
+                }
+            }); 
+        }
+                        await pc.current.close(); 
                         navigate(-1);
                         socket.current.emit("left",{to:remoteSocketId});
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000); 
+
     }
 
     useEffect(() => {
@@ -58,7 +69,7 @@ export default function Vcall() {
                         toast("Call rejected");
                         setIsRinging(false)
                       await clearall();
-                      end();
+                      await end();
                     }
                     else if (userData.callStatus === "calling")
                     {
@@ -231,7 +242,7 @@ export default function Vcall() {
         console.log("User left the call");
 
         await clearall();
-            end();
+            await end();
             toast("Call ended")
     }, [remoteSocketId]);
     
@@ -291,13 +302,13 @@ export default function Vcall() {
 )}
         <div className="controls">
         <button onClick={() => {
-            
+            setIsMicMuted(!isMicMuted);
     const audioTracks = localStream.getAudioTracks();
     audioTracks.forEach(track => {
         track.enabled = !track.enabled;
     });
-}}>
-    Mic
+}} style={{ backgroundColor: isMicMuted ? 'red' : 'blue' }}>
+    {isMicMuted?"Unmute":"Mute"}
 </button>
             <button onClick={async() => {
              await clearall();
@@ -309,7 +320,7 @@ export default function Vcall() {
         callerid:"",
         status:"online"
       });
-             end();
+             await end();
              toast("Call ended")
                 }}>
                 End Call

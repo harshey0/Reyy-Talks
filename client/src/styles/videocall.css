@@ -41,14 +41,12 @@
 
 .controls button {
     margin-left: 30px;
+    height: 120px;
+    width: 120px;
     padding:30px;
     background-color: blue;
     color: #fff;
     border: none;
     border-radius: 50%;
     cursor: pointer;
-}
-
-.controls button:hover {
-    background-color: rgba(0, 0, 255, 0.468);
 }
