@@ -99,7 +99,7 @@ export default function Login() {
         <form onSubmit={register}>
         <label htmlFor="file"> <img src={dp.url||favicon} alt="" />Upload Profile picture</label>
        
-            <input type="file" id='file'  style={{display:"none"}}  onChange={profilepic}/>
+            <input type="file" id='file'  style={{display:"none"}}  onChange={profilepic} accept="image/*"/>
             <input type="username" placeholder='Username' name='username'  />
             <input type="email" placeholder='Email' name='email'  />
             <input type="password" placeholder='Password' name='password'  />

@@ -291,7 +291,7 @@ export default function Chat() {
           <label htmlFor='file'>
           <img src={img} alt="" />
           </label>
-          <input type="file" id='file' style={{display:"none"}} onChange={pic}   disabled={loading || isCurrentBlocked || isRecieveBlocked}/>
+          <input type="file" id='file' style={{display:"none"}} onChange={pic}   disabled={loading || isCurrentBlocked || isRecieveBlocked} accept="image/*"/>
 
           {/* <img src={camera} alt="" /> */}
           <img src={mic} alt="" />
