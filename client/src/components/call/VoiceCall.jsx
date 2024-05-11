@@ -312,14 +312,6 @@ export default function Vcall() {
 </button>
             <button onClick={async() => {
              await clearall();
-             await updateDoc(doc(db, "users", user?.id), {
-        callStatus: "",
-        callType: "",
-        caller: "",
-        room:"",
-        callerid:"",
-        status:"online"
-      });
              await end();
              toast("Call ended")
                 }}>
